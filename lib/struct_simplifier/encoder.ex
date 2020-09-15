@@ -10,6 +10,9 @@ defprotocol StructSimplifier.Simplifable do
       iex> StructSimplifier.Simplifable.encode("123")
       "123"
 
+      iex> StructSimplifier.Simplifable.encode(nil)
+      nil
+
       iex> StructSimplifier.Simplifable.encode(true)
       true
 
@@ -35,6 +38,8 @@ end
 
 defimpl StructSimplifier.Simplifable, for: Atom do
   alias StructSimplifier.Decoder
+
+  def encode(nil), do: nil
   def encode(bool) when is_boolean(bool), do: bool
   def encode(atom), do: Decoder.atom_field() <> Atom.to_string(atom)
 end

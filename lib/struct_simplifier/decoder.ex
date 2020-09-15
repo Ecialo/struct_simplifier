@@ -10,6 +10,9 @@ defmodule StructSimplifier.Decoder do
       iex> StructSimplifier.Decoder.decode("123")
       "123"
 
+      iex> StructSimplifier.Decoder.decode(nil)
+      nil
+
       iex> StructSimplifier.Decoder.decode(true)
       true
 

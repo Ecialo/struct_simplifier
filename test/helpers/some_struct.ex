@@ -21,7 +21,7 @@ defmodule StructSimplifierTest.SomeStruct do
       b: 2.0,
       c: "ololo",
       d: Vector.new(1, 2),
-      e: [1, 2, 3],
+      e: [1, 2, nil],
       f: %{:a => 1, "b" => 11}
     }
   end
