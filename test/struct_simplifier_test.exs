@@ -22,7 +22,7 @@ defmodule StructSimplifierTest do
       "b" => 2.0,
       "c" => "ololo",
       "d" => [{"__t__", "Elixir.StructSimplifierTest.Vector"}, {"x", 1}, {"y", 2}],
-      "e" => [1, 2, 3],
+      "e" => [1, 2, nil],
       "f" => %{
         "__t__" => 1,
         "__a__a" => 1,
@@ -36,7 +36,7 @@ defmodule StructSimplifierTest do
       {"b", 2.0},
       {"c", "ololo"},
       {"d", [{"__t__", "Elixir.StructSimplifierTest.Vector"}, {"x", 1}, {"y", 2}]},
-      {"e", [1, 2, 3]},
+      {"e", [1, 2, nil]},
       {"f", [{"__t__", 1}, {"__a__a", 1}, {"b", 11}]}
     ]
 
