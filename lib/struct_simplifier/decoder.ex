@@ -1,3 +1,15 @@
+defprotocol StructSimplifier.Desimplifable do
+  @fallback_to_any true
+  def decode(inaccurate_struct, decoded_fields)
+end
+
+defimpl StructSimplifier.Desimplifable, for: Any do
+  def decode(inaccurate_struct, _decoded_fields) do
+    inaccurate_struct
+  end
+
+end
+
 defmodule StructSimplifier.Decoder do
   @moduledoc """
   How to decode data from simplified format. Shipped with this:
@@ -25,12 +37,13 @@ defmodule StructSimplifier.Decoder do
       iex> StructSimplifier.Decoder.decode(%{"__t__" => 1, "__a__a" => 1, "__i__2" => 2, "3" => 3})
       %{:a => 1, 2 => 2, "3" => 3}
   """
-  @type_field "__t__"
-  @atom_field "__a__"
-  @int_field "__i__"
-  @map_type 1
-  @tuple_field [@type_field, 0]
-  @map_field {@type_field, @map_type}
+  use StructSimplifier.Common
+  # @type_field "__t__"
+  # @atom_field "__a__"
+  # @int_field "__i__"
+  # @map_type 1
+  # @tuple_field [@type_field, 0]
+  # @map_field {@type_field, @map_type}
 
   def decode([@tuple_field | rest]) do
     rest
@@ -62,7 +75,8 @@ defmodule StructSimplifier.Decoder do
       |> Map.drop([@type_field])
       |> Enum.map(&decode_field/1)
 
-    struct(struct_name, fields)
+    s = struct(struct_name, fields)
+    StructSimplifier.Desimplifable.decode(s, fields)
   end
 
   def decode(list) when is_list(list) do

@@ -26,3 +26,36 @@ defmodule StructSimplifierTest.SomeStruct do
     }
   end
 end
+
+defmodule StructSimplifierTest.StrangeStruct do
+  alias __MODULE__, as: StrangeStruct
+
+  defstruct [:a, :b, :c, :d]
+
+  def new do
+    %StrangeStruct{
+      a: 1,
+      b: 2,
+      c: 3,
+      d: 4
+    }
+  end
+
+  defimpl StructSimplifier.Simplifable do
+    alias StructSimplifier.Encoder
+    # require StructSimplifier.Encoder
+    def encode(s) do
+      naive_s = Encoder.naive_encode(s)
+
+      %{naive_s | "b" => [s.b, s.b]}
+      |> Map.drop(["d"])
+    end
+  end
+
+  defimpl StructSimplifier.Desimplifable do
+    def decode(struct, fields) do
+      %{struct | d: 4, b: hd(fields[:b])}
+    end
+  end
+
+end

@@ -1,6 +1,9 @@
 defmodule StructSimplifierTest do
   use ExUnit.Case
-  alias StructSimplifierTest.SomeStruct
+  alias StructSimplifierTest.{
+    SomeStruct,
+    StrangeStruct
+  }
 
   doctest StructSimplifier
   doctest StructSimplifier.Decoder
@@ -59,10 +62,44 @@ defmodule StructSimplifierTest do
     eds =
       s
       |> StructSimplifier.encode()
-      |> Jason.encode()
-      |> Jason.decode()
+      |> Jason.encode!()
+      |> Jason.decode!()
       |> StructSimplifier.decode()
 
     assert s == eds
+  end
+
+  test "desimplify protocol" do
+
+    ss = StrangeStruct.new()
+
+    es = StructSimplifier.encode(ss)
+    assert es["b"] == [2, 2]
+    assert es["d"] == nil
+
+    ds = StructSimplifier.decode(es)
+    assert ss == ds
+
+    es1 = %{es | "b" => [3, 4]}
+    ds1 = StructSimplifier.decode(es1)
+
+    assert ds1.b == 3
+
+  end
+
+  @skip "not for decoder mr"
+  test "complex map" do
+    a = %{{:a, 1} => 666}
+    # Проблема с конвертацией ключа в строку. Я могу вместо ключей делать метки, а настоящий ключ хранить рядом по метке
+
+    b =
+      a
+      |> StructSimplifier.encode() |> IO.inspect(label: "e")
+      |> Jason.encode!() |> IO.inspect(label: "je")
+      |> Jason.decode!() |> IO.inspect(label: "jd")
+      |> StructSimplifier.decode()
+      |> Map.new(fn {k, v} -> {StructSimplifier.decode(k), v} end)
+
+    assert a == b
   end
 end

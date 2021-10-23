@@ -34,19 +34,19 @@ defimpl StructSimplifier.Simplifable, for: [Integer, Float, BitString] do
 end
 
 defimpl StructSimplifier.Simplifable, for: Atom do
-  alias StructSimplifier.Decoder
+  use StructSimplifier.Common
   def encode(bool) when is_boolean(bool), do: bool
-  def encode(atom), do: Decoder.atom_field() <> Atom.to_string(atom)
+  def encode(atom), do: @atom_field <> Atom.to_string(atom)
 end
 
 defimpl StructSimplifier.Simplifable, for: Tuple do
-  alias StructSimplifier.Decoder
+  use StructSimplifier.Common
 
   def encode(tuple) do
     tuple
     |> Tuple.to_list()
     |> @protocol.encode()
-    |> List.insert_at(0, Decoder.tuple_field())
+    |> List.insert_at(0, @tuple_field)
   end
 end
 
@@ -57,23 +57,23 @@ defimpl StructSimplifier.Simplifable, for: List do
 end
 
 defimpl StructSimplifier.Simplifable, for: Map do
-  alias StructSimplifier.Decoder
+  use StructSimplifier.Common
 
   def encode(map) do
     map
     |> Map.new(fn {k, v} -> {encode_key(k), @protocol.encode(v)} end)
-    |> Map.put(Decoder.type_field(), Decoder.map_type())
+    |> Map.put(@type_field, @map_type)
   end
 
   def encode_key(k) when is_integer(k) do
-    Decoder.int_field() <> Integer.to_string(k)
+    @int_field <> Integer.to_string(k)
   end
 
   def encode_key(k), do: @protocol.encode(k)
 end
 
 defimpl StructSimplifier.Simplifable, for: Any do
-  alias StructSimplifier.Decoder
+  use StructSimplifier.Common
 
   def encode(struct_) do
     struct_name = Atom.to_string(struct_.__struct__)
@@ -81,6 +81,13 @@ defimpl StructSimplifier.Simplifable, for: Any do
     struct_
     |> Map.from_struct()
     |> Map.new(fn {k, v} -> {Atom.to_string(k), @protocol.encode(v)} end)
-    |> Map.put(Decoder.type_field(), struct_name)
+    |> Map.put(@type_field, struct_name)
+  end
+end
+
+defmodule StructSimplifier.Encoder do
+
+  def naive_encode(struct_) do
+    StructSimplifier.Simplifable.Any.encode(struct_)
   end
 end
